@@ -1,7 +1,10 @@
+import RegisterPage from "./pages/Register/RegisterPage"
 
 const App = () => {
   return (
-    <div>App</div>
+    <>
+      <RegisterPage />
+    </>
   )
 }
 
