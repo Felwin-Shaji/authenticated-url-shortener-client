@@ -53,3 +53,27 @@ export const validateRegisterForm = (
 
     return errors;
 };
+
+export interface LoginErrors {
+    email?: string;
+    password?: string;
+}
+
+export const validateLoginForm = (
+    email: string,
+    password: string,
+): LoginErrors => {
+    const errors: LoginErrors = {};
+
+    if (!email.trim()) {
+        errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        errors.email = 'Enter a valid email address';
+    }
+
+    if (!password) {
+        errors.password = 'Password is required';
+    }
+
+    return errors;
+};

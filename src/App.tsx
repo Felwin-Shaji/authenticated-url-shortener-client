@@ -1,11 +1,15 @@
-import RegisterPage from "./pages/Register/RegisterPage"
+import { BrowserRouter } from 'react-router-dom';
+import AppRoutes from './routes/AppRoutes';
+import AuthInitializer from './components/AuthInitializer/AuthInitializer';
 
-const App = () => {
+function App() {
   return (
-    <>
-      <RegisterPage />
-    </>
-  )
+    <BrowserRouter>
+      <AuthInitializer>
+        <AppRoutes />
+      </AuthInitializer>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

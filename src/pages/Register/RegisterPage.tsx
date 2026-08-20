@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from 'react';
 import type { RegisterFormData } from '../../types/auth';
-import { registerUser } from '../../services/authService';
+import { loginUser, registerUser } from '../../services/authService';
 import FormInput from '../../components/FormInput/FormInput';
 import { validateRegisterForm } from '../../validation/authValidation';
+import { useNavigate } from 'react-router-dom';
+import { useAppDispatch } from '../../store/hooks';
+import { setCredentials } from '../../store/slices/authSlice';
 
 interface RegisterErrors {
     username?: string;
@@ -12,6 +15,9 @@ interface RegisterErrors {
 }
 
 function RegisterPage() {
+    const navigate = useNavigate();
+    const dispatch = useAppDispatch();
+
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -51,9 +57,23 @@ function RegisterPage() {
         };
 
         try {
-            const response = await registerUser(formData);
+            await registerUser(formData);
 
-            console.log('Registration successful:', response);
+            const loginResponse = await loginUser({
+                email: formData.email,
+                password: formData.password,
+            });
+
+            dispatch(
+                setCredentials({
+                    user: loginResponse.user,
+                    accessToken: loginResponse.accessToken,
+                }),
+            );
+
+            navigate('/dashboard', { replace: true });
+        } catch {
+            // Global Axios interceptor handles the error toast.
         } finally {
             setIsSubmitting(false);
         }
@@ -134,7 +154,11 @@ function RegisterPage() {
 
                 <p className="auth-footer">
                     Already have an account?{' '}
-                    <button type="button" className="login-link">
+                    <button
+                        type="button"
+                        className="login-link"
+                        onClick={() => navigate('/login')}
+                    >
                         Sign in
                     </button>
                 </p>
