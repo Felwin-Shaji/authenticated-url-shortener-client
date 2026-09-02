@@ -19,3 +19,9 @@ export interface LoginResponse {
   accessToken: string;
   user: AuthUser;
 }
+
+export interface ApiResponse<T> {
+    success: boolean;
+    message: string;
+    data: T;
+}
