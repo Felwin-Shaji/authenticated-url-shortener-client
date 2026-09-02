@@ -1,15 +1,20 @@
 import { API_AUTH } from '../types/apiRoutes/apiAuth';
-import type { LoginFormData, LoginResponse, RegisterFormData } from '../types/auth';
+import type { ApiResponse, LoginFormData, LoginResponse, RegisterFormData } from '../types/auth';
 import api from './api';
 
-export const registerUser = async (data: RegisterFormData) => {
-    const response = await api.post(API_AUTH.REGISTER, data);
+export const registerUser = async (
+    data: RegisterFormData,
+): Promise<LoginResponse> => {
+    const response = await api.post<ApiResponse<LoginResponse>>(
+        API_AUTH.REGISTER,
+        data,
+    );
 
-    return response.data;
+    return response.data.data;
 };
 
 export const loginUser = async (data: LoginFormData,): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>(
+    const response = await api.post<ApiResponse<LoginResponse>>(
         API_AUTH.LOGIN,
         data,
         {
@@ -17,11 +22,11 @@ export const loginUser = async (data: LoginFormData,): Promise<LoginResponse> =>
         },
     );
 
-    return response.data;
+    return response.data.data;
 };
 
 export const refreshAccessToken = async (): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>(
+    const response = await api.post<ApiResponse<LoginResponse>>(
         API_AUTH.REFRESH,
         {},
         {
@@ -29,7 +34,7 @@ export const refreshAccessToken = async (): Promise<LoginResponse> => {
         },
     );
 
-    return response.data;
+    return response.data.data;
 };
 
 
