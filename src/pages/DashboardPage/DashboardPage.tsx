@@ -4,6 +4,9 @@ import DashboardHeader from './components/DashboardHeader';
 import CreateUrlForm from './components/CreateUrlForm';
 import { getUrls } from '../../services/urlService';
 import type { UrlResponse, PaginationMeta } from '../../types/url';
+import { removeUrl } from '../../services/urlService';
+import toast from 'react-hot-toast';
+import ConfirmToast from '../../components/ConfirmTost';
 
 const PAGE_LIMIT = 5;
 
@@ -13,6 +16,7 @@ function DashboardPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [recentUrl, setRecentUrl] = useState<UrlResponse | null>(null);
+  const [deletingUrlId, setDeletingUrlId] = useState<string | null>(null);
 
   const fetchUrls = useCallback(async (page: number) => {
     setIsLoading(true);
@@ -38,6 +42,44 @@ function DashboardPage() {
     } else {
       setCurrentPage(1); // Triggers re-fetch for page 1
     }
+  };
+
+  const handleRemoveUrl = (urlId: string) => {
+    const toastId = toast.custom(
+      (t) => (
+        <ConfirmToast
+          message="Are you sure you want to remove this URL?"
+          onCancel={() => toast.dismiss(t.id)}
+          onConfirm={async () => {
+            toast.dismiss(t.id);
+
+            setDeletingUrlId(urlId);
+
+            try {
+              await removeUrl(urlId);
+
+              await fetchUrls(currentPage);
+
+              setRecentUrl((current) =>
+                current?.id === urlId ? null : current,
+              );
+
+              toast.success('URL removed successfully');
+            } catch (error) {
+              console.error('Failed to remove URL', error);
+              toast.error('Failed to remove URL');
+            } finally {
+              setDeletingUrlId(null);
+            }
+          }}
+        />
+      ),
+      {
+        duration: Infinity,
+      },
+    );
+
+    return toastId;
   };
 
   return (
@@ -92,10 +134,19 @@ function DashboardPage() {
                       </a>
                       <p className="truncate text-sm text-slate-500">{url.originalUrl}</p>
                     </div>
-                    <div className="shrink-0 text-right">
+                    <div className="flex shrink-0 items-center gap-3">
                       <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
                         {url.clicks} clicks
                       </span>
+
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveUrl(url.id)}
+                        disabled={deletingUrlId === url.id}
+                        className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {deletingUrlId === url.id ? 'Removing...' : 'Remove'}
+                      </button>
                     </div>
                   </div>
                 ))}

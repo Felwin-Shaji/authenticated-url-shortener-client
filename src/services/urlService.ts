@@ -31,3 +31,11 @@ export const getUrls = async (
 
     return response.data;
 };
+
+export const removeUrl = async (
+    urlId: string,
+): Promise<void> => {
+    await api.delete(
+        `${API_URLS.URLS}/${urlId}`,
+    );
+};
